@@ -1,5 +1,5 @@
 from flask import render_template, request, redirect, url_for, flash, abort
-from flask.ext.login import login_user, login_required, current_user
+from flask.ext.login import login_user, login_required, current_user, logout_user
 from werkzeug.security import check_password_hash
 
 from . import app
@@ -86,8 +86,9 @@ def single_entry_get(id):
 @login_required
 def edit_entry(id):
     """ get form to edit single entry """
+    
     entry = get_entry(id)
-    if entry:
+    if entry and entry.author and entry.author.email == current_user.email:
         return render_template("edit_entry.html",entry=entry)
     else:
         abort(404)
@@ -97,7 +98,7 @@ def edit_entry(id):
 def update_entry(id):
     """ post route for editing entry """
     entry = get_entry(id)
-    if not entry:
+    if not entry or not entry.author or entry.author.email != current_user.email:
          abort(404)
          
     entry.title = request.form["title"]
@@ -110,10 +111,13 @@ def update_entry(id):
 def delete_entry(id):
     """ delete entry """
     entry = get_entry(id)
-    session.delete(entry)
-    session.commit()
-    return redirect(url_for("entries"))
-
+    if entry.author and entry.author.email == current_user.email:
+        session.delete(entry)
+        session.commit()
+        return redirect(url_for("entries"))
+    else:
+        abort(404)
+        
 @app.errorhandler(404)
 def error_route(e):
     """ return 404 """
@@ -135,3 +139,9 @@ def login_post():
         return redirect(url_for("login_get"))
     login_user(user)
     return redirect(request.args.get('next') or url_for("entries"))
+
+@app.route('/logout')
+def logout():
+    """ logout current user """
+    logout_user()
+    return redirect(url_for('entries'))
