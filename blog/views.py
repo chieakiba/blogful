@@ -82,6 +82,9 @@ def edit_entry(id):
 @app.route('/entry/<int:id>/edit',methods=['POST'])
 def update_entry(id):
     entry = get_entry(id)
+    if not entry:
+         return redirect(url_for("error_route"))
+         
     entry.title = request.form["title"]
     entry.content =request.form["content"]
     session.commit()
