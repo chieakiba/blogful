@@ -5,7 +5,7 @@ from getpass import getpass
 from werkzeug.security import generate_password_hash
 
 from blog import app
-from blog.database import session,Entry, User
+from blog.database import session, Entry, User
 
 
 manager = Manager(app)

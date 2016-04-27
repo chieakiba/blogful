@@ -1,7 +1,7 @@
 from flask import Markup
 import mistune as md
 
-from . import app
+import app
 
 
 @app.template_filter()
