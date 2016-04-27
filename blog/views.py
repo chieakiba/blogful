@@ -8,7 +8,7 @@ PAGINATE_BY = 20
 
 
 def get_entry(id):
-    return Entry.query.get(id)
+    return session.query(Entry).get(id)
     
     
 @app.route("/")
@@ -64,13 +64,20 @@ def add_entry_post():
 @app.route('/entry/<int:id>')
 def single_entry_get(id):
     entry = get_entry(id)
-    return render_template("single_entry.html",
-        entry=entry
-        )
+    if entry:
+        return render_template("single_entry.html",
+            entry=entry
+            )
+    else:
+        return redirect(url_for("error_route"))
+        
 @app.route('/entry/<int:id>/edit',methods=['GET'])
 def edit_entry(id):
     entry = get_entry(id)
-    return render_template("edit_entry.html",entry=entry)
+    if entry:
+        return render_template("edit_entry.html",entry=entry)
+    else:
+        return redirect(url_for("error_route"))
     
 @app.route('/entry/<int:id>/edit',methods=['POST'])
 def update_entry(id):
@@ -86,4 +93,7 @@ def delete_entry(id):
     session.delete(entry)
     session.commit()
     return redirect(url_for("entries"))
-    
+
+@app.route('/404')
+def error_route():
+    return render_template("404.html")
