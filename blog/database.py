@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from flask.ext.login import UserMixin
 
-import app
+from . import app
 
 
 engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])

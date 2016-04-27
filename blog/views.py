@@ -1,7 +1,9 @@
-from flask import render_template, request, redirect, url_for
+from flask import render_template, request, redirect, url_for, flash
+from flask.ext.login import login_user, login_required
+from werkzeug.security import check_password_hash
 
-import app
-from .database import session, Entry
+from . import app
+from .database import session, Entry, User
 
 
 PAGINATE_BY = 20
@@ -51,11 +53,13 @@ def entries(page=1):
     )
     
 @app.route('/entry/add',methods=["GET"])
+@login_required
 def add_entry_get():
     """ add entry form """
     return render_template("add_entry.html")
     
 @app.route("/entry/add", methods=["POST"])
+@login_required
 def add_entry_post():
     """ add entry to DB """
     entry = Entry(title=request.form["title"],
@@ -77,6 +81,7 @@ def single_entry_get(id):
         return redirect(url_for("error_route"))
         
 @app.route('/entry/<int:id>/edit',methods=['GET'])
+@login_required
 def edit_entry(id):
     """ get form to edit single entry """
     entry = get_entry(id)
@@ -86,6 +91,7 @@ def edit_entry(id):
         return redirect(url_for("error_route"))
     
 @app.route('/entry/<int:id>/edit',methods=['POST'])
+@login_required
 def update_entry(id):
     """ post route for editing entry """
     entry = get_entry(id)
@@ -98,6 +104,7 @@ def update_entry(id):
     return redirect(url_for("single_entry_get",id=id))
 
 @app.route('/entry/<int:id>/delete')
+@login_required
 def delete_entry(id):
     """ delete entry """
     entry = get_entry(id)
@@ -109,3 +116,20 @@ def delete_entry(id):
 def error_route():
     """ return 404 """
     return render_template("404.html")
+    
+@app.route("/login",methods=["GET"])
+def login_get():
+    """ return login template """
+    return render_template("login.html")
+    
+@app.route('/login', methods=["POST"])
+def login_post():
+    """ check user credentials """
+    email = request.form["email"]
+    password = request.form["password"]
+    user = session.query(User).filter_by(email=email).first()
+    if not user or not check_password_hash(user.password, password):
+        flash("Incorrect username or password", "danger")
+        return redirect(url_for("login_get"))
+    login_user(user)
+    return redirect(request.args.get('next') or url_for("entries"))

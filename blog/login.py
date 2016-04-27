@@ -1,6 +1,6 @@
 from flask.ext.login import LoginManager
 
-import app
+from . import app
 from .database import session, User
 
 
