@@ -1,5 +1,5 @@
-from flask import render_template, request, redirect, url_for, flash
-from flask.ext.login import login_user, login_required
+from flask import render_template, request, redirect, url_for, flash, abort
+from flask.ext.login import login_user, login_required, current_user
 from werkzeug.security import check_password_hash
 
 from . import app
@@ -62,8 +62,10 @@ def add_entry_get():
 @login_required
 def add_entry_post():
     """ add entry to DB """
-    entry = Entry(title=request.form["title"],
-        content=request.form["content"]
+    entry = Entry(
+        title=request.form["title"],
+        content=request.form["content"],
+        author=current_user
     )
     session.add(entry)
     session.commit()
@@ -78,7 +80,7 @@ def single_entry_get(id):
             entry=entry
             )
     else:
-        return redirect(url_for("error_route"))
+        abort(404)
         
 @app.route('/entry/<int:id>/edit',methods=['GET'])
 @login_required
@@ -88,7 +90,7 @@ def edit_entry(id):
     if entry:
         return render_template("edit_entry.html",entry=entry)
     else:
-        return redirect(url_for("error_route"))
+        abort(404)
     
 @app.route('/entry/<int:id>/edit',methods=['POST'])
 @login_required
@@ -96,7 +98,7 @@ def update_entry(id):
     """ post route for editing entry """
     entry = get_entry(id)
     if not entry:
-         return redirect(url_for("error_route"))
+         abort(404)
          
     entry.title = request.form["title"]
     entry.content =request.form["content"]
@@ -112,10 +114,10 @@ def delete_entry(id):
     session.commit()
     return redirect(url_for("entries"))
 
-@app.route('/404')
-def error_route():
+@app.errorhandler(404)
+def error_route(e):
     """ return 404 """
-    return render_template("404.html")
+    return render_template('404.html'), 404
     
 @app.route("/login",methods=["GET"])
 def login_get():
