@@ -1,0 +1,27 @@
+{% import "macros.html" as macros %}
+{% extends "base.html" %}
+{% block content %}
+
+{% for entry in entries %}
+{{ macros.render_entry(entry) }}
+{% endfor %}
+ 
+<ul class="pager">
+    {% if has_next %}
+    <li class="previous" >
+        {% if limit %}
+            <a href="{{ url_for('entries', page=page + 1, limit=limit) }}">&larr; Older</a>
+        {% else %}
+            <a href="{{ url_for('entries', page=page + 1) }}">&larr; Older</a>    
+        {% endif %}
+    </li>
+    {% endif %}
+    {% if has_prev %}
+    <li class="next">
+    <a href="{{ url_for('entries', page=page - 1) }}">&rarr; Newer</a>
+    </li>
+    {% endif %}
+</ul>
+
+
+{% endblock %}
