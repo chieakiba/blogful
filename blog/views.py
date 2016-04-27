@@ -1,10 +1,14 @@
 from flask import render_template, request, redirect, url_for
+
 from . import app
 from .database import session, Entry
 
+
 PAGINATE_BY = 20
+
+
 def get_entry(id):
-    return session.query(Entry).filter_by(id=id).first()
+    return Entry.query.get(id)
     
     
 @app.route("/")
@@ -59,10 +63,8 @@ def add_entry_post():
 
 @app.route('/entry/<int:id>')
 def single_entry_get(id):
-    entry=get_entry(id)
-    print(entry)
-    return render_template(
-        "single_entry.html",
+    entry = get_entry(id)
+    return render_template("single_entry.html",
         entry=entry
         )
 @app.route('/entry/<int:id>/edit',methods=['GET'])
@@ -75,15 +77,12 @@ def update_entry(id):
     entry = get_entry(id)
     entry.title = request.form["title"]
     entry.content =request.form["content"]
-    
-    print(entry)
-
     session.commit()
     return redirect(url_for("single_entry_get",id=id))
 
 @app.route('/entry/<int:id>/delete')
 def delete_entry(id):
-    entry=get_entry(id)
+    entry = get_entry(id)
     session.delete(entry)
     session.commit()
     return redirect(url_for("entries"))
