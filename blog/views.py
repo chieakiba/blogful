@@ -88,7 +88,7 @@ def edit_entry(id):
     """ get form to edit single entry """
     
     entry = get_entry(id)
-    if entry and entry.author and entry.author.email == current_user.email:
+    if entry and entry.author and entry.author.id == current_user.id:
         return render_template("edit_entry.html",entry=entry)
     else:
         abort(404)
@@ -98,7 +98,7 @@ def edit_entry(id):
 def update_entry(id):
     """ post route for editing entry """
     entry = get_entry(id)
-    if not entry or not entry.author or entry.author.email != current_user.email:
+    if not entry or not entry.author or entry.author.id != current_user.id:
          abort(404)
          
     entry.title = request.form["title"]
@@ -111,7 +111,7 @@ def update_entry(id):
 def delete_entry(id):
     """ delete entry """
     entry = get_entry(id)
-    if entry.author and entry.author.email == current_user.email:
+    if entry.author and entry.author.id == current_user.id:
         session.delete(entry)
         session.commit()
         return redirect(url_for("entries"))
