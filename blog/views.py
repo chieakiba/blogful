@@ -8,12 +8,14 @@ PAGINATE_BY = 20
 
 
 def get_entry(id):
+    """ get specific entry from DB """
     return session.query(Entry).get(id)
     
     
 @app.route("/")
 @app.route("/page/<int:page>")
 def entries(page=1):
+    """ route for root and specific page of entries """
     # Zero-indexed page
     if request.args.get('limit'):
         try:
@@ -50,10 +52,12 @@ def entries(page=1):
     
 @app.route('/entry/add',methods=["GET"])
 def add_entry_get():
+    """ add entry form """
     return render_template("add_entry.html")
     
 @app.route("/entry/add", methods=["POST"])
 def add_entry_post():
+    """ add entry to DB """
     entry = Entry(title=request.form["title"],
         content=request.form["content"]
     )
@@ -63,6 +67,7 @@ def add_entry_post():
 
 @app.route('/entry/<int:id>')
 def single_entry_get(id):
+    """ get single entry """
     entry = get_entry(id)
     if entry:
         return render_template("single_entry.html",
@@ -73,6 +78,7 @@ def single_entry_get(id):
         
 @app.route('/entry/<int:id>/edit',methods=['GET'])
 def edit_entry(id):
+    """ get form to edit single entry """
     entry = get_entry(id)
     if entry:
         return render_template("edit_entry.html",entry=entry)
@@ -81,6 +87,7 @@ def edit_entry(id):
     
 @app.route('/entry/<int:id>/edit',methods=['POST'])
 def update_entry(id):
+    """ post route for editing entry """
     entry = get_entry(id)
     if not entry:
          return redirect(url_for("error_route"))
@@ -92,6 +99,7 @@ def update_entry(id):
 
 @app.route('/entry/<int:id>/delete')
 def delete_entry(id):
+    """ delete entry """
     entry = get_entry(id)
     session.delete(entry)
     session.commit()
@@ -99,4 +107,5 @@ def delete_entry(id):
 
 @app.route('/404')
 def error_route():
+    """ return 404 """
     return render_template("404.html")

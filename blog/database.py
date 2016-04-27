@@ -15,6 +15,7 @@ session = Session()
 
 
 class Entry(Base):
+    """ blog entry model """
     __tablename__ =  "entries"
     
     id =Column(Integer,primary_key = True)
@@ -24,6 +25,7 @@ class Entry(Base):
  
  
 class User(Base, UserMixin):
+    """ user model """
     __tablename__ = "users"
     
     id = Column(Integer, primary_key=True)
