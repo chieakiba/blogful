@@ -5,6 +5,7 @@
             <li>
                 {{ entry.datetime | dateformat("%m/%d/%y") }}
             </li>
+            <li>{{ entry.author.name }}</li>
             <li><a href="/entry/{{entry.id}}/edit" class='btn btn-warning'>Edit</a></li>
             <li><a href="/entry/{{entry.id}}/delete" class='btn btn-danger'>Delete</a></li>
             
